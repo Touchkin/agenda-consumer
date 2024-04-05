@@ -128,21 +128,22 @@ export class JobDbRepository {
 		now: Date = new Date()
 	): Promise<IJobParameters | undefined> {
 		/**
-		 * Query used to find job to run
+		 * Query used to find new jobs to run
 		 */
-		const JOB_PROCESS_WHERE_QUERY: Filter<IJobParameters /* Omit<IJobParameters, 'lockedAt'> & { lockedAt?: Date | null } */> =
+		const NEW_JOB_PROCESS_WHERE_QUERY: Filter<IJobParameters /* Omit<IJobParameters, 'lockedAt'> & { lockedAt?: Date | null } */> =
 			{
 				name: jobName,
-				//disabled: { $ne: true },
-				$or: [
-					{
-						lockedAt: { $eq: null as any },
-						nextRunAt: { $lte: nextScanAt }
-					},
-					{
-						lockedAt: { $lte: lockDeadline }
-					}
-				]
+				lockedAt: { $eq: null as any },
+				nextRunAt: { $lte: nextScanAt }
+			};
+
+		/**
+		 * Query used to find old locked jobs to run
+		 */
+		const OLD_JOB_PROCESS_WHERE_QUERY: Filter<IJobParameters /* Omit<IJobParameters, 'lockedAt'> & { lockedAt?: Date | null } */> =
+			{
+				name: jobName,
+				lockedAt: { $lte: lockDeadline }
 			};
 
 		/**
@@ -159,11 +160,18 @@ export class JobDbRepository {
 		};
 
 		// Find ONE and ONLY ONE job and set the 'lockedAt' time so that job begins to be processed
-		const result = await this.collection.findOneAndUpdate(
-			JOB_PROCESS_WHERE_QUERY,
+		let result = await this.collection.findOneAndUpdate(
+			NEW_JOB_PROCESS_WHERE_QUERY,
 			JOB_PROCESS_SET_QUERY,
 			JOB_RETURN_QUERY
 		);
+
+		if (!result?.value)
+			result = await this.collection.findOneAndUpdate(
+				OLD_JOB_PROCESS_WHERE_QUERY,
+				JOB_PROCESS_SET_QUERY,
+				JOB_RETURN_QUERY
+			);
 
 		return result.value || undefined;
 	}

@@ -436,7 +436,7 @@ export class JobProcessor {
 							throw new Error(`cannot find job ${job.attrs._id} in locked jobs queue?`);
 						}
 
-						this.lockedJobs.splice(lockedJobIndex, 1);
+						this.lockedJobs.splice(lockedJobIndex, 1); // check for a better implementation
 						this.updateStatus(job.attrs.name, 'locked', -1);
 					} else {
 						log.extend('jobProcessing')(
