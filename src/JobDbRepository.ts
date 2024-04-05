@@ -156,16 +156,20 @@ export class JobDbRepository {
 		 */
 		const JOB_RETURN_QUERY: FindOneAndUpdateOptions = {
 			returnDocument: 'after',
-			sort: this.connectOptions.sort
+			sort: this.connectOptions.sort,
+			maxTimeMS: 5 * 60 * 1000 // adding 5 minute limit to exit and wait for next invocation
 		};
 
 		// Find ONE and ONLY ONE job and set the 'lockedAt' time so that job begins to be processed
+
+		// First attempt to find a new job
 		let result = await this.collection.findOneAndUpdate(
 			NEW_JOB_PROCESS_WHERE_QUERY,
 			JOB_PROCESS_SET_QUERY,
 			JOB_RETURN_QUERY
 		);
 
+		// if there are no new jobs, then look for an older, locked, incomplete job
 		if (!result?.value)
 			result = await this.collection.findOneAndUpdate(
 				OLD_JOB_PROCESS_WHERE_QUERY,
