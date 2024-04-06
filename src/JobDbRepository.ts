@@ -128,21 +128,22 @@ export class JobDbRepository {
 		now: Date = new Date()
 	): Promise<IJobParameters | undefined> {
 		/**
-		 * Query used to find job to run
+		 * Query used to find new jobs to run
 		 */
-		const JOB_PROCESS_WHERE_QUERY: Filter<IJobParameters /* Omit<IJobParameters, 'lockedAt'> & { lockedAt?: Date | null } */> =
+		const NEW_JOB_PROCESS_WHERE_QUERY: Filter<IJobParameters /* Omit<IJobParameters, 'lockedAt'> & { lockedAt?: Date | null } */> =
 			{
 				name: jobName,
-				disabled: { $ne: true },
-				$or: [
-					{
-						lockedAt: { $eq: null as any },
-						nextRunAt: { $lte: nextScanAt }
-					},
-					{
-						lockedAt: { $lte: lockDeadline }
-					}
-				]
+				lockedAt: { $eq: null as any },
+				nextRunAt: { $lte: nextScanAt }
+			};
+
+		/**
+		 * Query used to find old locked jobs to run
+		 */
+		const OLD_JOB_PROCESS_WHERE_QUERY: Filter<IJobParameters /* Omit<IJobParameters, 'lockedAt'> & { lockedAt?: Date | null } */> =
+			{
+				name: jobName,
+				lockedAt: { $lte: lockDeadline }
 			};
 
 		/**
@@ -155,15 +156,26 @@ export class JobDbRepository {
 		 */
 		const JOB_RETURN_QUERY: FindOneAndUpdateOptions = {
 			returnDocument: 'after',
-			sort: this.connectOptions.sort
+			sort: this.connectOptions.sort,
+			maxTimeMS: 5 * 60 * 1000 // adding 5 minute limit to exit and wait for next invocation
 		};
 
 		// Find ONE and ONLY ONE job and set the 'lockedAt' time so that job begins to be processed
-		const result = await this.collection.findOneAndUpdate(
-			JOB_PROCESS_WHERE_QUERY,
+
+		// First attempt to find a new job
+		let result = await this.collection.findOneAndUpdate(
+			NEW_JOB_PROCESS_WHERE_QUERY,
 			JOB_PROCESS_SET_QUERY,
 			JOB_RETURN_QUERY
 		);
+
+		// if there are no new jobs, then look for an older, locked, incomplete job
+		if (!result?.value)
+			result = await this.collection.findOneAndUpdate(
+				OLD_JOB_PROCESS_WHERE_QUERY,
+				JOB_PROCESS_SET_QUERY,
+				JOB_RETURN_QUERY
+			);
 
 		return result.value || undefined;
 	}
