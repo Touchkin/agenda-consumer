@@ -342,13 +342,11 @@ describe('Agenda', () => {
 						.find({
 							name: 'unique job'
 						})
-						.toArray((err, jobs) => {
-							if (err) {
-								throw err;
-							}
-
+						.toArray().catch((err) => {
+							throw err;
+						}).then((jobs) => {
 							expect(jobs).to.have.length(1);
-						});
+						})
 				});
 
 				it('should not modify job when unique matches and insertOnly is set to true', async () => {
@@ -395,13 +393,11 @@ describe('Agenda', () => {
 						.find({
 							name: 'unique job'
 						})
-						.toArray((err, jobs) => {
-							if (err) {
-								throw err;
-							}
-
+						.toArray().catch((err) => {
+							throw err;
+						}).then((jobs) => {
 							expect(jobs).to.have.length(1);
-						});
+						})
 				});
 			});
 
@@ -443,13 +439,11 @@ describe('Agenda', () => {
 						.find({
 							name: 'unique job'
 						})
-						.toArray((err, jobs) => {
-							if (err) {
-								throw err;
-							}
-
+						.toArray().catch((err) => {
+							throw err;
+						}).then((jobs) => {
 							expect(jobs).to.have.length(2);
-						});
+						})
 				});
 			});
 		});
