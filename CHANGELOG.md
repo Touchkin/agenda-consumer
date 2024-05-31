@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [5.2.1](https://github.com/hokify/agenda/compare/v5.1.0...v5.2.1) (2024-05-31)
+
 ### [6.2.12](https://github.com/hokify/agenda/compare/v6.2.11...v6.2.12) (2022-08-02)
 
 
