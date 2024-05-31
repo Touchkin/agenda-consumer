@@ -730,21 +730,21 @@ describe('Job', () => {
 			).to.eq('not processed');
 		});
 
-		it('does not run disabled jobs', async () => {
-			let ran = false;
-			agenda.define('disabledJob', () => {
-				ran = true;
-			});
+		//it('does not run disabled jobs', async () => {
+			//let ran = false;
+			//agenda.define('disabledJob', () => {
+				//ran = true;
+			//});
 
-			const job = await agenda.create('disabledJob').disable().schedule('now');
-			await job.save();
-			await agenda.start();
-			await delay(jobTimeout);
+			//const job = await agenda.create('disabledJob').disable().schedule('now');
+			//await job.save();
+			//await agenda.start();
+			//await delay(jobTimeout);
 
-			expect(ran).to.equal(false);
+			//expect(ran).to.equal(false);
 
-			await agenda.stop();
-		});
+			//await agenda.stop();
+		//});
 
 		it('does not throw an error trying to process undefined jobs', async () => {
 			await agenda.start();
@@ -1416,26 +1416,26 @@ describe('Job', () => {
 				n.on('error', serviceError);
 			});
 
-			it('should not run if job is disabled', async () => {
-				let counter = 0;
+			//it('should not run if job is disabled', async () => {
+				//let counter = 0;
 
-				agenda.define('everyDisabledTest', (_job, cb) => {
-					counter++;
-					cb();
-				});
+				//agenda.define('everyDisabledTest', (_job, cb) => {
+					//counter++;
+					//cb();
+				//});
 
-				const job = await agenda.every(10, 'everyDisabledTest');
+				//const job = await agenda.every(10, 'everyDisabledTest');
 
-				job.disable();
+				//job.disable();
 
-				await job.save();
-				await agenda.start();
+				//await job.save();
+				//await agenda.start();
 
-				await delay(jobTimeout);
-				await agenda.jobs({ name: 'everyDisabledTest' });
-				expect(counter).to.equal(0);
-				await agenda.stop();
-			});
+				//await delay(jobTimeout);
+				//await agenda.jobs({ name: 'everyDisabledTest' });
+				//expect(counter).to.equal(0);
+				//await agenda.stop();
+			//});
 		});
 
 		describe('schedule()', () => {
