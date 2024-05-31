@@ -43,7 +43,8 @@ describe('Job', () => {
 		return new Promise(resolve => {
 			agenda = new Agenda(
 				{
-					mongo: mongoDb
+					mongo: mongoDb,
+					processEvery: '500 milliseconds'
 				},
 				async () => {
 					await delay(50);
@@ -1001,8 +1002,9 @@ describe('Job', () => {
 
 			await Promise.all([agenda.now('lock job', { i: 1 }), agenda.now('lock job', { i: 2 })]);
 
+
 			// give it some time to get picked up
-			await delay(200);
+			await delay(500);
 
 			expect((await agenda.getRunningStats()).lockedJobs).to.equal(1);
 		});
@@ -1039,6 +1041,7 @@ describe('Job', () => {
 			await Promise.all([agenda.now('lock job', { i: 1 }), agenda.now('lock job', { i: 2 })]);
 
 			await delay(500);
+			
 			expect((await agenda.getRunningStats()).lockedJobs).to.equal(1);
 		});
 
