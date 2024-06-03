@@ -38,6 +38,31 @@ const DefaultOptions = {
  * @class
  */
 class Agenda extends events_1.EventEmitter {
+    on(event, listener) {
+        if (this.forkedWorker && event !== 'ready' && event !== 'error') {
+            const warning = new Error(`calling on(${event}) during a forkedWorker has no effect!`);
+            console.warn(warning.message, warning.stack);
+            return this;
+        }
+        return super.on(event, listener);
+    }
+    isActiveJobProcessor() {
+        return !!this.jobProcessor;
+    }
+    async runForkedJob(jobId) {
+        const jobData = await this.db.getJobById(jobId);
+        if (!jobData) {
+            throw new Error('db entry not found');
+        }
+        const job = new Job_1.Job(this, jobData);
+        await job.runJob();
+    }
+    async getRunningStats(fullDetails = false) {
+        if (!this.jobProcessor) {
+            throw new Error('agenda not running!');
+        }
+        return this.jobProcessor.getStatus(fullDetails);
+    }
     /**
      * @param {Object} config - Agenda Config
      * @param {Function} cb - Callback after Agenda has started and connected to mongo
@@ -67,31 +92,6 @@ class Agenda extends events_1.EventEmitter {
         if (cb) {
             this.ready.then(() => cb());
         }
-    }
-    on(event, listener) {
-        if (this.forkedWorker && event !== 'ready' && event !== 'error') {
-            const warning = new Error(`calling on(${event}) during a forkedWorker has no effect!`);
-            console.warn(warning.message, warning.stack);
-            return this;
-        }
-        return super.on(event, listener);
-    }
-    isActiveJobProcessor() {
-        return !!this.jobProcessor;
-    }
-    async runForkedJob(jobId) {
-        const jobData = await this.db.getJobById(jobId);
-        if (!jobData) {
-            throw new Error('db entry not found');
-        }
-        const job = new Job_1.Job(this, jobData);
-        await job.runJob();
-    }
-    async getRunningStats(fullDetails = false) {
-        if (!this.jobProcessor) {
-            throw new Error('agenda not running!');
-        }
-        return this.jobProcessor.getStatus(fullDetails);
     }
     /**
      * Connect to the spec'd MongoDB server and database.

@@ -11,4 +11,4 @@ export interface IJobDefinition<DATA = unknown> {
     filePath: string | undefined;
     fn: DefinitionProcessor<DATA, void | ((error?: Error) => void)>;
 }
-export declare type DefinitionProcessor<DATA, CB> = (agendaJob: Job<DATA>, done: CB) => CB extends void ? Promise<void> : void;
+export type DefinitionProcessor<DATA, CB> = (agendaJob: Job<DATA>, done: CB) => CB extends void ? Promise<void> : void;

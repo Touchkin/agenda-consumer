@@ -118,7 +118,7 @@ export declare class Job<DATA = unknown | void> {
     runJob(): Promise<void>;
     private isPromise;
 }
-export declare type JobWithId = Job & {
+export type JobWithId = Job & {
     attrs: IJobParameters & {
         _id: ObjectId;
     };

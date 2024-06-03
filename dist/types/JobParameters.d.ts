@@ -29,5 +29,5 @@ export interface IJobParameters<DATA = unknown | void> {
     /** forks a new node sub process for executing this job */
     fork?: boolean;
 }
-export declare type TJobDatefield = keyof Pick<IJobParameters, 'lastRunAt' | 'lastFinishedAt' | 'nextRunAt' | 'failedAt' | 'lockedAt'>;
+export type TJobDatefield = keyof Pick<IJobParameters, 'lastRunAt' | 'lastFinishedAt' | 'nextRunAt' | 'failedAt' | 'lockedAt'>;
 export declare const datefields: Array<TJobDatefield>;

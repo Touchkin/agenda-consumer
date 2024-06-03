@@ -13,25 +13,6 @@ const MAX_SAFE_32BIT_INTEGER = 2 ** 31; // Math.pow(2,31);
  * Process methods for jobs
  */
 class JobProcessor {
-    constructor(agenda, maxConcurrency, totalLockLimit, processEvery) {
-        this.agenda = agenda;
-        this.maxConcurrency = maxConcurrency;
-        this.totalLockLimit = totalLockLimit;
-        this.processEvery = processEvery;
-        this.jobStatus = {};
-        this.localQueueProcessing = 0;
-        this.nextScanAt = new Date();
-        this.jobQueue = new JobProcessingQueue_1.JobProcessingQueue(this.agenda);
-        this.runningJobs = [];
-        this.lockedJobs = [];
-        this.jobsToLock = [];
-        this.isLockingOnTheFly = false;
-        this.isJobQueueFilling = new Map();
-        this.isRunning = true;
-        log('creating interval to call processJobs every [%dms]', processEvery);
-        this.processInterval = setInterval(() => this.process(), processEvery);
-        this.process();
-    }
     async getStatus(fullDetails = false) {
         const jobStatus = Object.keys(this.jobStatus).reduce((obj, key) => {
             // eslint-disable-next-line no-param-reassign
@@ -80,6 +61,25 @@ class JobProcessor {
                 })),
             isLockingOnTheFly: this.isLockingOnTheFly
         };
+    }
+    constructor(agenda, maxConcurrency, totalLockLimit, processEvery) {
+        this.agenda = agenda;
+        this.maxConcurrency = maxConcurrency;
+        this.totalLockLimit = totalLockLimit;
+        this.processEvery = processEvery;
+        this.jobStatus = {};
+        this.localQueueProcessing = 0;
+        this.nextScanAt = new Date();
+        this.jobQueue = new JobProcessingQueue_1.JobProcessingQueue(this.agenda);
+        this.runningJobs = [];
+        this.lockedJobs = [];
+        this.jobsToLock = [];
+        this.isLockingOnTheFly = false;
+        this.isJobQueueFilling = new Map();
+        this.isRunning = true;
+        log('creating interval to call processJobs every [%dms]', processEvery);
+        this.processInterval = setInterval(() => this.process(), processEvery);
+        this.process();
     }
     stop() {
         log.extend('stop')('stop job processor', this.isRunning);

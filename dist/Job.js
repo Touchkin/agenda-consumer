@@ -12,18 +12,6 @@ const log = debug('agenda:job');
  * @class
  */
 class Job {
-    constructor(agenda, args, byJobProcessor = false) {
-        this.agenda = agenda;
-        this.byJobProcessor = byJobProcessor;
-        // Set attrs to args
-        this.attrs = {
-            ...args,
-            // Set defaults if undefined
-            priority: (0, priority_1.parsePriority)(args.priority),
-            nextRunAt: args.nextRunAt === undefined ? new Date() : args.nextRunAt,
-            type: args.type
-        };
-    }
     getCanceledMessage() {
         var _a;
         return typeof this.canceled === 'object'
@@ -41,6 +29,18 @@ class Job {
                 console.log('cannot send cancel to child');
             }
         }
+    }
+    constructor(agenda, args, byJobProcessor = false) {
+        this.agenda = agenda;
+        this.byJobProcessor = byJobProcessor;
+        // Set attrs to args
+        this.attrs = {
+            ...args,
+            // Set defaults if undefined
+            priority: (0, priority_1.parsePriority)(args.priority),
+            nextRunAt: args.nextRunAt === undefined ? new Date() : args.nextRunAt,
+            type: args.type
+        };
     }
     /**
      * Given a job, turn it into an JobParameters object
