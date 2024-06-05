@@ -731,6 +731,7 @@ describe('Job', () => {
 			).to.eq('not processed');
 		});
 
+		// Uncomment this code when we started using disabled attribute in our job fetch query
 		//it('does not run disabled jobs', async () => {
 			//let ran = false;
 			//agenda.define('disabledJob', () => {
@@ -1419,6 +1420,7 @@ describe('Job', () => {
 				n.on('error', serviceError);
 			});
 
+			// Uncomment this code when we started using disabled attribute in our job fetch query
 			//it('should not run if job is disabled', async () => {
 				//let counter = 0;
 
