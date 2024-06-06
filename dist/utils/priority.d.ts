@@ -1,4 +1,4 @@
-export declare type JobPriority = number | keyof typeof priorityMap;
+export type JobPriority = number | keyof typeof priorityMap;
 declare const priorityMap: {
     lowest: number;
     low: number;

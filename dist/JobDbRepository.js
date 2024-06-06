@@ -72,7 +72,7 @@ class JobDbRepository {
             sort: this.connectOptions.sort
         };
         // Lock the job in MongoDB!
-        const resp = await this.collection.findOneAndUpdate(criteria, update, options);
+        const resp = await this.collection.findOneAndUpdate(criteria, update, { ...options, includeResultMetadata: true });
         return (resp === null || resp === void 0 ? void 0 : resp.value) || undefined;
     }
     async getNextJobToRun(jobName, nextScanAt, lockDeadline, now = new Date()) {
@@ -105,10 +105,10 @@ class JobDbRepository {
         };
         // Find ONE and ONLY ONE job and set the 'lockedAt' time so that job begins to be processed
         // First attempt to find a new job
-        let result = await this.collection.findOneAndUpdate(NEW_JOB_PROCESS_WHERE_QUERY, JOB_PROCESS_SET_QUERY, JOB_RETURN_QUERY);
+        let result = await this.collection.findOneAndUpdate(NEW_JOB_PROCESS_WHERE_QUERY, JOB_PROCESS_SET_QUERY, { ...JOB_RETURN_QUERY, includeResultMetadata: true });
         // if there are no new jobs, then look for an older, locked, incomplete job
         if (!(result === null || result === void 0 ? void 0 : result.value))
-            result = await this.collection.findOneAndUpdate(OLD_JOB_PROCESS_WHERE_QUERY, JOB_PROCESS_SET_QUERY, JOB_RETURN_QUERY);
+            result = await this.collection.findOneAndUpdate(OLD_JOB_PROCESS_WHERE_QUERY, JOB_PROCESS_SET_QUERY, { ...JOB_RETURN_QUERY, includeResultMetadata: true });
         return result.value || undefined;
     }
     async connect() {
@@ -217,7 +217,7 @@ class JobDbRepository {
             if (id) {
                 // Update the job and process the resulting data'
                 log('job already has _id, calling findOneAndUpdate() using _id as query');
-                const result = await this.collection.findOneAndUpdate({ _id: id, name: props.name }, update, { returnDocument: 'after' });
+                const result = await this.collection.findOneAndUpdate({ _id: id, name: props.name }, update, { returnDocument: 'after', includeResultMetadata: true });
                 return this.processDbResult(job, result.value);
             }
             if (props.type === 'single') {
@@ -245,7 +245,8 @@ class JobDbRepository {
                     type: 'single'
                 }, update, {
                     upsert: true,
-                    returnDocument: 'after'
+                    returnDocument: 'after',
+                    includeResultMetadata: true
                 });
                 log(`findOneAndUpdate(${props.name}) with type "single" ${((_a = result.lastErrorObject) === null || _a === void 0 ? void 0 : _a.updatedExisting)
                     ? 'updated existing entry'
@@ -263,7 +264,8 @@ class JobDbRepository {
                 log('calling findOneAndUpdate() with unique object as query: \n%O', query);
                 const result = await this.collection.findOneAndUpdate(query, update, {
                     upsert: true,
-                    returnDocument: 'after'
+                    returnDocument: 'after',
+                    includeResultMetadata: true
                 });
                 return this.processDbResult(job, result.value);
             }
